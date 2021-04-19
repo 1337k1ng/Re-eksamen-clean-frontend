@@ -3,10 +3,8 @@ import facade from "./apiFacade";
 import WelcomePage from "./welcomePage";
 import "bootstrap/dist/css/bootstrap.min.css";
 import Table from "react-bootstrap/Table";
-
 import { Switch, Route, NavLink } from "react-router-dom";
 import AddCoursePage from "./addCourse";
-
 function Header({ loggedIn, role }) {
   return (
     <div>
@@ -21,14 +19,12 @@ function Header({ loggedIn, role }) {
             {loggedIn ? <>Logout</> : <>Login</>}
           </NavLink>
         </li>
-
         <li>
           <NavLink activeClassName="selected" to="/allCourses">
             All Courses
           </NavLink>
         </li>
-
-        {loggedIn && (
+        {LoggedIn && role =="admin" &&(
           <li>
             <NavLink activeClassName="selected" to="/NewCourse">
               Add New Course
@@ -39,14 +35,11 @@ function Header({ loggedIn, role }) {
     </div>
   );
 }
-
 function Home() {
   return <WelcomePage />;
 }
-
 function LoginPage({ setLoggedIn, loggedIn, setRole }) {
   const [loggedInError, setLoggedInError] = useState("");
-
   const logout = () => {
     facade.logout();
     setLoggedIn(false);
@@ -58,7 +51,6 @@ function LoginPage({ setLoggedIn, loggedIn, setRole }) {
       .catch((err) => err.fullError)
       .then((data) => setLoggedInError(data));
   };
-
   if (loggedInError) {
     return (
       <div>
@@ -67,7 +59,6 @@ function LoginPage({ setLoggedIn, loggedIn, setRole }) {
       </div>
     );
   }
-
   return (
     <div>
       {!loggedIn ? (
@@ -81,16 +72,13 @@ function LoginPage({ setLoggedIn, loggedIn, setRole }) {
     </div>
   );
 }
-
 function AllCoursesPage() {
   // Const er en form for hook. Den laver en variabel som kan arbejde med resultatet efter rendering.
   const [fetchData, setFetchData] = useState([]);
-
   useEffect(() => {
     facade.fetchCourses().then((data) => setFetchData(data));
     //Tomt array betyder at den kun renderes én gang, og kun en gang.
   }, []);
-
   return (
     <Table striped bordered hover>
       <thead>
@@ -102,7 +90,6 @@ function AllCoursesPage() {
       <tbody>{MapCourses(fetchData)}</tbody>
     </Table>
   );
-
   function MapCourses(fetchData) {
     return fetchData.map((data) => {
       return (
@@ -114,11 +101,9 @@ function AllCoursesPage() {
     });
   }
 }
-
 function LogIn({ login }) {
   const init = { username: "", password: "" };
   const [loginCredentials, setLoginCredentials] = useState(init);
-
   const performLogin = (evt) => {
     evt.preventDefault();
     login(loginCredentials.username, loginCredentials.password);
@@ -129,7 +114,6 @@ function LogIn({ login }) {
       [evt.target.id]: evt.target.value,
     });
   };
-
   return (
     <div>
       <h2>Login</h2>
@@ -141,7 +125,7 @@ function LogIn({ login }) {
     </div>
   );
 }
-function LoggedIn({ setRole }) {
+function LoggedIn({setRole}) {
   const [dataFromServer, setDataFromServer] = useState("");
   const jwt = require("jsonwebtoken");
   const token = localStorage.getItem("jwtToken");
@@ -152,6 +136,7 @@ function LoggedIn({ setRole }) {
     roleToFetch = "admin";
   }
   useEffect(() => {
+    setRole(roleToFetch)
     facade.fetchData(roleToFetch).then((data) => setDataFromServer(data.msg));
   }, []);
 
@@ -163,11 +148,9 @@ function LoggedIn({ setRole }) {
     </div>
   );
 }
-
 function App() {
   const [loggedIn, setLoggedIn] = useState(false);
   const [role, setRole] = useState();
-
   return (
     <div>
       <Header loggedIn={loggedIn} role={role} />
@@ -176,17 +159,12 @@ function App() {
           <Home />
         </Route>
         <Route exact path="/LoginPage">
-          <LoginPage
-            setLoggedIn={setLoggedIn}
-            setRole={setRole}
-            loggedIn={loggedIn}
+          <LoginPage setLoggedIn={setLoggedIn} setRole={setRole} loggedIn={loggedIn}
           />
         </Route>
-
         <Route exact path="/allCourses">
           <AllCoursesPage />
         </Route>
-
         <Route exact path="/NewCourse">
           <AddCoursePage />
         </Route>
@@ -194,5 +172,4 @@ function App() {
     </div>
   );
 }
-
 export default App;
